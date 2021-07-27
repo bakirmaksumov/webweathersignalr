@@ -1,0 +1,113 @@
+﻿@model WebApplication1.Models.WeatherForecastViewModel
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+<link rel="stylesheet" href="~/css/normalize.css" />
+<link rel="stylesheet" href="~/css/style.css" />
+<style>
+</style>
+<div class="container">
+    <!--header-->
+    <div class="text-center">
+        <h1>Weather Forecast</h1>
+    </div>
+    <div class="main-items">
+        <label><b>Please select the city</b></label>
+        <select class="form-control" id="countryListID">
+            @foreach (var item in Model.CountryNameList)
+            {
+                <option>@item</option>
+            }
+            @*<option>---Select Options---</option>
+                <option>Tashkent</option>
+                <option>Budapesht</option>*@
+        </select>
+        <br />
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title"><span id="cityInfo"></span>, <span id="countryInfo"></span></h5>
+                <h6 class="card-subtitle">Current temprature: <span id="tempInfo"></span></h6>
+                <p class="card-text">Humidity: <span id="humidyInfo"></span></p>
+                <p class="card-text">Lat: <span id="latInfo"></span></p>
+                <p class="card-text">Lon: <span id="lonInfo"></span></p>
+                <p class="card-text">Feels Like: <span id="feelslikeInfo"></span></p>
+                <p class="card-text">Temp Max: <span id="tempInfoMax"></span> Temp Min: <span id="tempInfoMin"></span></p>
+                @*<p class="card-text">Describtion: <span id="descrb"></span></p>*@
+                <div class="img-container">
+                    <span id="descrb"></span>
+                    <img id="imgWeather" src="" title="weather"/>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="text-center">
+        <h1>Web chat</h1>
+    </div>
+    <div class="main-items">
+        <div class="card">
+            <div class="card-body">
+                <div class="mainchat-text">
+                    <ul id="messageTxt" style="list-style-type:none;"></ul>
+                </div>
+            </div>
+            <div class="card-footer">
+                <form name="message">
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input class="form-control" placeholder="message.." type="text" id="message" />
+                            </div>
+                            <div class="col-md-3">
+                                <input class="form-control" placeholder="user name" type="text" id="user" />
+                            </div>
+                            <div class="col-md-2">
+                                <input class="btn btn-success" type="submit" id="sendButton" />
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script src="~/js/chat.js"></script>
+<script>
+
+    $(function () {
+
+        $("#countryListID").change(function () {
+            var cityname = $("#countryListID option:selected").text();
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("GetWeatherDetail")",
+                data: { city: cityname },
+                dataType: "text",
+                success: function (rsltval) {
+
+                    var data = JSON.parse(rsltval);
+                        console.log(data);
+                        $("#cityInfo").html(data.cityName);
+                        $("#countryInfo").html(data.countryName);
+                        $("#latInfo").html(data.lat);
+                        $("#lonInfo").html(data.lon);
+                        $("#descrb").text(data.descriptionWeather);
+                        $("#humidyInfo").html(data.humidity);
+                        $("#feelslikeInfo").html(data.tempFeels);
+                        $("#tempInfo").html(data.temprature);
+                        $("#tempInfoMax").text(data.tempMax);
+                        $("#tempInfoMin").text(data.tempMin);
+                        $("#imgWeather").attr("src", "http://openweathermap.org/img/w/" + data.weatherPic + ".png");
+                        //data - response from server    
+                },
+                error: function () {
+
+                }
+            });
+           
+        });
+
+    });
+</script>
